@@ -1,0 +1,31 @@
+{
+  "name": "roku.js",
+  "version": "1.0.0",
+  "description": "Interact with the Roku \"External Control API\"",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lloti/roku.js.git"
+  },
+  "keywords": [
+    "roku",
+    "local",
+    "api",
+    "external",
+    "control",
+    "sdk"
+  ],
+  "author": "lloti",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lloti/roku.js/issues"
+  },
+  "homepage": "https://github.com/lloti/roku.js#readme",
+  "dependencies": {
+    "snekfetch": "^3.6.0",
+    "xml2js": "^0.4.19"
+  },
+  "devDependencies": {
+    "electron-config": "^1.0.0"
+  }
+}

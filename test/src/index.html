@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Roku Desktop Remote</title>
+	<style>
+		#apps {
+			max-width: 1000px;
+			width: 80%;
+			margin: 0 auto;
+			display: flex;
+			flex-flow: wrap;
+			align-content: center;
+			justify-content: flex-start;
+		}
+		.app {
+			max-width: 200px;
+			display: inline;
+			padding: 0 10px;
+			cursor: pointer;
+		}
+		.app > img {
+			max-width: 200px;
+		}
+		#search, #input {
+			flex-grow: 1;
+			width: 100%;
+			margin: 5px 0;
+		}
+		#rokus {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 150px;
+			background: rgba(0, 0, 0, 0.2);
+		}
+	</style>
+</head>
+<body>
+	<div id="rokus" onclick="search()">Start first roku.</div>
+	<div id="apps">
+		<input type="search" id="input" placeholder="Send Keys To Your Device">
+		<input type="search" id="search" placeholder="Search Apps">
+	</div>
+	<script>
+		const { Roku, Util } = require('../../');
+		function search() {
+			Util.findFirstDevice().then(start);
+		}
+		async function start(ip) {
+			const roku = new Roku(ip);
+
+			const keys = {
+				ArrowRight: 'right',
+				ArrowLeft: 'left',
+				ArrowUp: 'up',
+				ArrowDown: 'down',
+				Enter: 'select',
+				Backspace: 'back',
+				Escape: 'back',
+				Home: 'home',
+				MediaPlayPause: 'play',
+				MediaTrackNext: 'backward',
+				MediaTrackPrevious: 'forward',
+				AudioVolumeUp: 'volumeup',
+				AudioVolumeDown: 'volumedown',
+				AudioVolumeMute: 'mute',
+			};
+			document.onkeyup = function(key) {
+				if (key.target.id === 'search' || key.target.id === 'input') return;
+				if (key.key in keys) {
+					roku.remote.press(keys[key.key]);
+					key.preventDefault();
+					return false;
+				}
+			};
+			const apps = await roku.getApps();
+			for (const el of document.getElementsByClassName('app')) el.parentNode.removeChild(el);
+			for (const app of apps.sort((a, b) => a.id - b.id)) {
+				document.getElementById('apps').innerHTML += `
+					<div class="app" onclick="roku.launch(${app.id})" title="${app.name}">
+						<img src="${roku.getIconURL(app.id)}" alt="${app.name}">
+					</div>
+				`;
+			}
+			document.getElementById('search').oninput = function() {
+				for (const el of document.getElementsByClassName('app')) {
+					el.style.display = 'inline';
+					if (!el.title.toLowerCase().includes(this.value.toLowerCase())) el.style.display = 'none';
+				}
+			}
+			document.getElementById('input').onkeyup = function(key) {
+				if (key.key === 'Backspace') roku.remote.press('backspace').catch(() => null);
+				else roku.remote.send(key.key).catch(() => null);
+			}
+		}
+	</script>
+</body>
+</html>
